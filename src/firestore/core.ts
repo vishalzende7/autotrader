@@ -1,6 +1,6 @@
 import { config } from "../config/config";
 import * as admin from 'firebase-admin';
-
+const cert = require('../autotrader-main-150bc3bef908.json');
 
 export class db {
     private _mydb:admin.firestore.Firestore;
@@ -14,10 +14,13 @@ export class db {
         }
         else{
             //init live
+            console.log("Initialising db 1 ",cert);
+            admin.initializeApp({
+                credential:admin.credential.cert(cert),
+                databaseURL:"https://autotrader-main .firebaseio.com"
+            });
         }
-
         this._mydb = admin.firestore();
-        
     }
 
     /*

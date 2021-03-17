@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "autotrader-main",
+  "private_key_id": "150bc3bef908c5281a82190d655c438ad64e1f8c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCjMTwDMFNIvZdG\nbELnBEIM9XQeUGbwxncnzG6lk94qXS4RakXx6x9VybdTTTikTcljm84VgqZKJidh\nN3wqxI+6LAXSAcbYFHaFAb/2WuzsWPJIrJN8aQcOOUxi3t6G8uf9kgaJO989Vanz\nAmvwfZo8WS8FL4MXkoVVvB50jEgx4Exy+JFx5EQfQscvCIJKYex0PvrmYS/WzI8U\no7k0RgVA6JFPKgJtpJdRn21AMlJLfTokwOgHL8QTY0V07euUl9wVFC5+oKMYLyQj\n0Q3b4f3ebI5mRpl6Xx9L+R8ZF7nkoxK1i2qYPQ0mnB0p4EuJvEgnEadjAQVFTfW+\njEL0bbqjAgMBAAECggEARLhPYrJfZ+K6iKO/OoP/AnD8IGXQK3UPqTk7oMsXQ3Sw\nmRHM+XX+4IPMiK4ce4fsFd9+1W0KdHADpjsUtPfH5Gh0XP51ivl2/USC3w1j9pTw\nFe1iQAIEQBed1IawY1h3m755tSF6vNvNcLEk3gUuRVpy4/ahd/Qx5KwOkRqfrixv\nAiq8JtNyVxpm2YA6Rbpig+R5W1lGlEKQr3XNeJX3ZlO4sP/ZxUpPNm06AO2MjuUC\n0tKAVWiv8KfH7t2dlfI8PHp2w2FVyO2b8AmY9OvOUFvZF6/RWraQJxkr7eSMWe+U\nheQBI5YrtdWog/MkUfcSJrXOdj1r9l2MmRYWyyC8FQKBgQDV+B8D7FH7lrgjoI20\nVNXVsZu06KjcEQhGfTg2Q1PvXheUESNwHnjTL18jQ/7fIMHDdQnK2Ib+oT2mR9W7\nN4BlzxbCsbE1sqjoM9qUXFrdu/77yt2IAxdsMO1eYAZA0MUOv2ChhB7Yy2/v6/M3\n98HPczAIiz30LD2HmCWNPWaN9wKBgQDDP7F2dxchhGbxyv83E9eC7qKJzBFjg4+m\noPXtTsxXO++1CyZi6nQveJ9WmD/Y/zi7aSJgvw6ciN8hj6PIRSkkCIKRyIv1AyDF\ns5aa5/52MWOXiXwohFsL4J3inhkQMkVIfpP8keex3iT9Mw67jn8HAGtveATLzCCT\nanffNcS9tQKBgBEP6hk7/QWc7S4aHXKl2S9jLFFuxBhYW1qTnanmEIlj7WlnPHYy\nV9wvSNzdDTPpvsnBSXidb5ZacToTPF3jfR+hNeVsmf74MjPh/qoZ+zz3Qsv9T1EL\nPhDojeUaryT4AN6+MAxxJqyO/GwbWpe58ACE5O2pfNU9ueJYJZZvsP/dAoGADzV5\n7GFwctLude07Hh40jmVqUdOMkzTfTrqBDaAyuKTZkj+xGMlsjXoW51bqukt/LtIM\ntH6Nc9IRl3qp5mLExqLHEPYPOOGqftvzYlOp9aj5OgeinUFaGj2/7rQj/af8z53U\nhzsSUj+coACHKEL8UB5PQBqYPQvEidckSUXV8nUCgYB7Tk+6Cyh7uUluVfgkCNO7\nqIWcGLIH5vjmrDMbMiGqkYsCCoVTuQAYBRYBJaKcfE4jeO3Lpb0mAQx6ND0j1liW\nmg8Ao5I0uSCSx6ETMs0ETAHypxYiE9HJP+fi07y4YCn3RHuILOAiQVHzviEB83j/\nPPUfsjHPIDHf2g0Ur3o+hQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "vishalzende7@autotrader-main.iam.gserviceaccount.com",
+  "client_id": "108428298883913360140",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vishalzende7%40autotrader-main.iam.gserviceaccount.com"
+}

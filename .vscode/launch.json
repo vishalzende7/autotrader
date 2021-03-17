@@ -9,7 +9,7 @@
             "program": "${workspaceFolder}/dist/server.js",
             "request": "launch",
             "env": {
-                "FIRESTORE_EMULATOR_HOST":"localhost:1994"
+                // "FIRESTORE_EMULATOR_HOST":"localhost:1994"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -26,7 +26,7 @@
                 "debug"
             ],
             "env": {
-                "FIRESTORE_EMULATOR_HOST":"localhost:1994"
+                // "FIRESTORE_EMULATOR_HOST":"localhost:1994"
             },
             "port": 9229,
             "skipFiles": [

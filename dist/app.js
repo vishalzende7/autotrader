@@ -73,41 +73,60 @@ class App {
             return yield this.client.refeshToken(partnerId);
         });
     }
-    ProcessOrderAlgo() {
+    ProcessOrderAlgo(reqDetails) {
         if (this.client == null)
+            return;
+        if (reqDetails == null)
             return;
         this.log("Processing algo order! asynchronusly");
-        const partner = "FI03150303";
-        const group = "TEST";
-        let client_arr = this.client.getClientsByGroup(partner, group);
+        const partner = reqDetails.partnerId;
+        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            this.placeOrder(c);
+            let o = new Stoxkart_1.Order();
+            o.uid = c.stxid;
+            o.exchange = reqDetails.exch;
+            o.sym = Number.parseInt(reqDetails.sym);
+            o.ordertype = reqDetails.oType;
+            o.side = reqDetails.side;
+            o.qty = Number(c.symbols[10666]);
+            o.price = Number.parseFloat(reqDetails.price);
+            o.stopLoss = Number.parseFloat(reqDetails.sl);
+            o.target = Number.parseFloat(reqDetails.tgt);
+            o.token = c.token;
+            this.stoxkart.bracketOrder(o);
         });
     }
-    ProcessManualOrder() {
+    ProcessManualOrder(reqDetails) {
         if (this.client == null)
             return;
-        this.log("Processing manual order for %d", this.count);
-        let doc = this.firestore.getDocumentRef('tokens/p1');
-        console.log("Processed manual order for %d", this.count);
+        if (reqDetails == null)
+            return;
+        this.log("Processing Manual order! asynchronusly");
+        const partner = reqDetails.partnerId;
+        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
+        client_arr.forEach(element => {
+            let c = this.client.getClientById(partner, element);
+            let o = new Stoxkart_1.Order();
+            o.uid = c.stxid;
+            o.exchange = reqDetails.exch;
+            o.sym = Number.parseInt(reqDetails.sym);
+            o.productType = reqDetails.pType;
+            o.ordertype = reqDetails.oType;
+            o.side = reqDetails.side;
+            o.qty = reqDetails.qty;
+            o.price = Number.parseFloat(reqDetails.price);
+            o.token = c.token;
+            this.stoxkart.normalOrder(o);
+        });
+        console.log("Finished order processing");
     }
     placeOrder(c) {
         let o = new Stoxkart_1.Order();
-        o.exchange = "NSECM";
-        o.ordertype = "LIMIT";
-        o.productType = "NRML";
-        o.qty = Number(c.symbols[10666]);
-        o.side = "BUY";
-        o.sym = 10666;
-        o.token = c.token;
-        o.uid = c.stxid;
-        o.price = 56.88;
-        this.stoxkart.bracketOrder(o);
         return 0;
     }
     onSuccess(res) {
-        this.log('On Success ');
+        this.log('On Success ', res);
     }
     onFailed(e) {
         this.log('On error ', e);

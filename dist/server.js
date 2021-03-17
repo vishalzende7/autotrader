@@ -7,6 +7,7 @@ const server = express();
 const app = new App();
 
 app.initApp();
+server.use(express.json());
 
 const PORT = process.env.PORT || 8080
 
@@ -23,37 +24,28 @@ server.get('/',function serverRoot(req,res){
     res.send(msg);
 });
 
-server.get('/processalgo', async function AlgoOrder(req,res){
+server.post('/processalgo', async function AlgoOrder(req,res){
     res.status(200);
     res.setHeader('content-type','application/json');
     let msg = '{"response":"processing algo order"}';
+    let reqData = req.body;
+    app.ProcessOrderAlgo(reqData);
     res.send(msg);
-
-    app.ProcessOrderAlgo();
 });
 
-server.get('/processorder', async function ManualOrder(req,res){
+server.post('/processorder', async function ManualOrder(req,res){
     res.status(200);
     res.setHeader('content-type','application/json');
     let msg = '{"response":"processing manual order"}';
+    let reqData = req.body;
+    console.log(req.body.partnerId);
+    app.ProcessManualOrder(reqData);
     res.send(msg);
-
-    app.ProcessManualOrder();
 });
 
-server.get('/config',function configureServer(req,res){
-    app.install();
-    res.status(200).send("Written");
-});
 
-server.get('/dump',function dumpData(req,res){
-    app.dumpFakeData();
-    res.status(200).send("Written Fake Data");
-});
-
-server.get('/t',async function test(req,res){
+server.get('/refresh',async function test(req,res){
     let pid = req.query.q;
-    console.log(pid);
     let count = await app.test(pid);
     res.send("Okay "+count);
 });

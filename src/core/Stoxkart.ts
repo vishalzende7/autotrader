@@ -30,6 +30,7 @@ export class Stoxkart {
                 authorization:od.token
             },
             body:{
+                clientID:od.uid,
                 exchangeSegment:od.exchange,
                 exchangeInstrumentID:od.sym,
                 orderType:od.ordertype,
@@ -40,11 +41,17 @@ export class Stoxkart {
                 stopLossPrice:od.stopLoss,
                 trailingStoploss:0,
                 squarOff:od.target,
-                orderUniqueIdentifier:"AUTOTRADER"
+                orderUniqueIdentifier:"WEB"
             },
             json:true
         };
-
+        if(config.apiCall == 0){
+            console.log("Order is not placed, check config.ts->apiCall ",option);
+            return;
+        }
+        if(config.env == 0){
+            console.log("Option Data ",option);
+        }
         let mInstance = this;
         request(option)
         .then(function success(res){
@@ -94,11 +101,18 @@ export class Stoxkart {
                 orderQuantity:od.qty,
                 limitPrice:od.price,
                 stopPrice:0,
-                orderUniqueIdentifier:"AUTOTRADER"+od.uid
+                orderUniqueIdentifier:"WEB"+od.uid
             },
             json:true
         };
 
+        if(config.apiCall == 0){
+            console.log("Order is not placed, check config.ts->apiCall ",options);
+            return;
+        }
+        if(config.env == 0){
+            console.log("Option Data ",options);
+        }
         let mInstance = this;
         request(options)
         .then(function success(res){
@@ -107,6 +121,7 @@ export class Stoxkart {
             
             mInstance._callback.onFailed(e);
         });
+        return;
     }
 
     private log(msg?:any, ...args:any[]):void {

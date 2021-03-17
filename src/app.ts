@@ -62,7 +62,6 @@ class App implements CallBack{
         init client tables
         end
         */
-
         if (this.client == null) {
             this.client = new Clients(this.firestore.getCollectionReff('tokens'));
         }
@@ -74,52 +73,80 @@ class App implements CallBack{
         return await this.client.refeshToken(partnerId);
     }
 
-    public ProcessOrderAlgo() {
+    public ProcessOrderAlgo(reqDetails:any) {
         if (this.client == null)
             return;
-        this.log("Processing algo order! asynchronusly");
-        const partner: String = "FI03150303";
-        const group: String = "TEST";
+        if(reqDetails == null)
+            return;
 
-        let client_arr = this.client.getClientsByGroup(partner, group)
+        this.log("Processing algo order! asynchronusly");
+        
+        const partner = reqDetails.partnerId;
+
+        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            this.placeOrder(c);
-        });
+            
+            let o = new Order();
 
+            o.uid = c.stxid;
+            o.exchange = reqDetails.exch;
+            o.sym = Number.parseInt(reqDetails.sym);
+            o.ordertype = reqDetails.oType;
+            o.side = reqDetails.side;
+            o.qty = Number(c.symbols[10666]);
+            o.price = Number.parseFloat(reqDetails.price);
+            o.stopLoss = Number.parseFloat(reqDetails.sl);
+            o.target = Number.parseFloat(reqDetails.tgt);
+            
+            o.token = c.token;
+
+            this.stoxkart.bracketOrder(o);
+        });
+        
     }
 
-    public ProcessManualOrder() {
+    public ProcessManualOrder(reqDetails:any) {
         if (this.client == null)
             return;
+        if(reqDetails == null)
+            return;
 
-        this.log("Processing manual order for %d", this.count);
-
-        let doc = this.firestore.getDocumentRef('tokens/p1');
+        this.log("Processing Manual order! asynchronusly");
         
+        const partner = reqDetails.partnerId;
 
-        console.log("Processed manual order for %d", this.count);
+        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
+        client_arr.forEach(element => {
+            let c = this.client.getClientById(partner, element);
+            
+            let o = new Order();
 
+            o.uid = c.stxid;
+            
+            o.exchange = reqDetails.exch;
+            o.sym = Number.parseInt(reqDetails.sym);
+            o.productType = reqDetails.pType
+            o.ordertype = reqDetails.oType;
+            o.side = reqDetails.side;
+            o.qty = reqDetails.qty;
+            o.price = Number.parseFloat(reqDetails.price);
+            
+            o.token = c.token;
+
+            this.stoxkart.normalOrder(o);
+        });
+        console.log("Finished order processing");
     }
 
     public placeOrder(c: Client) {
         let o = new Order();
-        o.exchange = "NSECM";
-        o.ordertype = "LIMIT";
-        o.productType = "NRML";
-        o.qty = Number(c.symbols[10666]);
-        o.side = "BUY";
-        o.sym = 10666;
-        o.token = c.token;
-        o.uid = c.stxid;
-        o.price = 56.88;
-        
-        this.stoxkart.bracketOrder(o);
+       
         return 0;
     }
 
     public onSuccess(res:any){
-        this.log('On Success ');
+        this.log('On Success ',res);
     }
 
     public onFailed(e:any){
