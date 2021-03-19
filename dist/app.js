@@ -68,7 +68,7 @@ class App {
             console.log("Finish client initilization");
         });
     }
-    test(partnerId = 'FIN001') {
+    refresh(partnerId = 'FIN001') {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.client.refeshToken(partnerId);
         });

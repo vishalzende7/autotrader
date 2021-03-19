@@ -46,6 +46,6 @@ server.post('/processorder', async function ManualOrder(req,res){
 
 server.get('/refresh',async function test(req,res){
     let pid = req.query.q;
-    let count = await app.test(pid);
-    res.send("Okay "+count);
+    let count = await app.refresh(pid);
+    res.send('{"count":'+count+"}");
 });
