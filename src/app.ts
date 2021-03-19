@@ -69,7 +69,7 @@ class App implements CallBack{
         console.log("Finish client initilization");
     }
 
-    public async test(partnerId: String = 'FIN001') {
+    public async refresh(partnerId: String = 'FIN001') {
         return await this.client.refeshToken(partnerId);
     }
 
