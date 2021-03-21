@@ -18,7 +18,7 @@ class Clients {
         this.total_client = 0;
         let d = new Date();
         d.setHours(0, 0, 0, 0);
-        this.today = d.getTime() / 10000;
+        this.today = d.getTime() / 1000;
         console.log(this.today);
     }
     initClientAll() {

@@ -1,16 +1,16 @@
 
 import { Client, Clients } from './clients/client';
 import { db } from './firestore/core';
-import {CallBack, Order, Stoxkart} from './core/Stoxkart';
+import { CallBack, Order, Stoxkart } from './core/Stoxkart';
 import { config } from './config/config';
 
 
 
-class App implements CallBack{
+class App implements CallBack {
     private firestore: db;
     private count: number = 0;
     private client: Clients = null;
-    private stoxkart:Stoxkart = null;
+    private stoxkart: Stoxkart = null;
     constructor() {
         this.firestore = new db();
         this.stoxkart = new Stoxkart(this);
@@ -73,89 +73,99 @@ class App implements CallBack{
         return await this.client.refeshToken(partnerId);
     }
 
-    public ProcessOrderAlgo(reqDetails:any) {
+    public ProcessOrderAlgo(reqDetails: any) {
         if (this.client == null)
             return;
-        if(reqDetails == null)
+        if (reqDetails == null)
             return;
 
         this.log("Processing algo order! asynchronusly");
-        
+
         const partner = reqDetails.partnerId;
 
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            
-            let o = new Order();
+            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
+                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+            }
+            else {
+                let o = new Order();
 
-            o.uid = c.stxid;
-            o.exchange = reqDetails.exch;
-            o.sym = Number.parseInt(reqDetails.sym);
-            o.ordertype = reqDetails.oType;
-            o.side = reqDetails.side;
-            o.qty = Number(c.symbols[10666]);
-            o.price = Number.parseFloat(reqDetails.price);
-            o.stopLoss = Number.parseFloat(reqDetails.sl);
-            o.target = Number.parseFloat(reqDetails.tgt);
-            
-            o.token = c.token;
+                o.uid = c.stxid;
+                o.exchange = reqDetails.exch;
+                o.sym = Number.parseInt(reqDetails.sym);
+                o.ordertype = reqDetails.oType;
+                o.side = reqDetails.side;
+                o.qty = Number(c.symbols[reqDetails.sym]);
+                o.price = Number.parseFloat(reqDetails.price);
+                o.stopLoss = Number.parseFloat(reqDetails.sl);
+                o.target = Number.parseFloat(reqDetails.tgt);
 
-            this.stoxkart.bracketOrder(o);
+                o.token = c.token;
+
+                this.stoxkart.bracketOrder(o);
+            }
+
         });
-        
+
     }
 
-    public ProcessManualOrder(reqDetails:any) {
+    public ProcessManualOrder(reqDetails: any) {
         if (this.client == null)
             return;
-        if(reqDetails == null)
+        if (reqDetails == null)
             return;
 
         this.log("Processing Manual order! asynchronusly");
-        
+
         const partner = reqDetails.partnerId;
 
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            
-            let o = new Order();
+            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
+                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+            }
+            else {
+                let o = new Order();
 
-            o.uid = c.stxid;
-            
-            o.exchange = reqDetails.exch;
-            o.sym = Number.parseInt(reqDetails.sym);
-            o.productType = reqDetails.pType
-            o.ordertype = reqDetails.oType;
-            o.side = reqDetails.side;
-            o.qty = reqDetails.qty;
-            o.price = Number.parseFloat(reqDetails.price);
-            
-            o.token = c.token;
+                o.uid = c.stxid;
 
-            this.stoxkart.normalOrder(o);
+                o.exchange = reqDetails.exch;
+                o.sym = Number.parseInt(reqDetails.sym);
+                o.productType = reqDetails.pType
+                o.ordertype = reqDetails.oType;
+                o.side = reqDetails.side;
+                o.qty = reqDetails.qty == 0 ? Number(c.symbols[reqDetails.sym]) : reqDetails.qty;
+                o.price = Number.parseFloat(reqDetails.price);
+
+                o.token = c.token;
+
+                this.stoxkart.normalOrder(o);
+            }
+
         });
         console.log("Finished order processing");
     }
 
     public placeOrder(c: Client) {
         let o = new Order();
-       
+
         return 0;
     }
 
-    public onSuccess(res:any){
-        this.log('On Success ',res);
+    public onSuccess(res: any) {
+        this.log('On Success ', res);
     }
 
-    public onFailed(e:any){
-        this.log('On error ',e);
+    public onFailed(e: any) {
+        this.log('On error ', e);
     }
 
-    private log(msg?:any, ...args:any[]):void {
+    private log(msg?: any, ...args: any[]): void {
         if (config.env == 0) {
-            console.log(msg,args);
+            console.log(msg, args);
         }
     }
 

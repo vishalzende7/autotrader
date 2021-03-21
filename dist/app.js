@@ -83,18 +83,23 @@ class App {
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            let o = new Stoxkart_1.Order();
-            o.uid = c.stxid;
-            o.exchange = reqDetails.exch;
-            o.sym = Number.parseInt(reqDetails.sym);
-            o.ordertype = reqDetails.oType;
-            o.side = reqDetails.side;
-            o.qty = Number(c.symbols[10666]);
-            o.price = Number.parseFloat(reqDetails.price);
-            o.stopLoss = Number.parseFloat(reqDetails.sl);
-            o.target = Number.parseFloat(reqDetails.tgt);
-            o.token = c.token;
-            this.stoxkart.bracketOrder(o);
+            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
+                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+            }
+            else {
+                let o = new Stoxkart_1.Order();
+                o.uid = c.stxid;
+                o.exchange = reqDetails.exch;
+                o.sym = Number.parseInt(reqDetails.sym);
+                o.ordertype = reqDetails.oType;
+                o.side = reqDetails.side;
+                o.qty = Number(c.symbols[reqDetails.sym]);
+                o.price = Number.parseFloat(reqDetails.price);
+                o.stopLoss = Number.parseFloat(reqDetails.sl);
+                o.target = Number.parseFloat(reqDetails.tgt);
+                o.token = c.token;
+                this.stoxkart.bracketOrder(o);
+            }
         });
     }
     ProcessManualOrder(reqDetails) {
@@ -107,17 +112,22 @@ class App {
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
-            let o = new Stoxkart_1.Order();
-            o.uid = c.stxid;
-            o.exchange = reqDetails.exch;
-            o.sym = Number.parseInt(reqDetails.sym);
-            o.productType = reqDetails.pType;
-            o.ordertype = reqDetails.oType;
-            o.side = reqDetails.side;
-            o.qty = reqDetails.qty;
-            o.price = Number.parseFloat(reqDetails.price);
-            o.token = c.token;
-            this.stoxkart.normalOrder(o);
+            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
+                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+            }
+            else {
+                let o = new Stoxkart_1.Order();
+                o.uid = c.stxid;
+                o.exchange = reqDetails.exch;
+                o.sym = Number.parseInt(reqDetails.sym);
+                o.productType = reqDetails.pType;
+                o.ordertype = reqDetails.oType;
+                o.side = reqDetails.side;
+                o.qty = reqDetails.qty == 0 ? Number(c.symbols[reqDetails.sym]) : reqDetails.qty;
+                o.price = Number.parseFloat(reqDetails.price);
+                o.token = c.token;
+                this.stoxkart.normalOrder(o);
+            }
         });
         console.log("Finished order processing");
     }
