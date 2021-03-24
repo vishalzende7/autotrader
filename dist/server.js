@@ -49,3 +49,7 @@ server.get('/refresh',async function test(req,res){
     let count = await app.refresh(pid);
     res.send('{"count":'+count+"}");
 });
+
+server.get('/rebuild',async function rebuild(req,res){
+    app.initApp();
+});

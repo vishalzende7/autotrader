@@ -23,33 +23,6 @@ class App {
     install() {
         //create direstore db structure
     }
-    dumpFakeData() {
-        const p_num = 4;
-        const c_pp = 5;
-        for (let i = 0; i < p_num; i++) {
-            let pDocRef = this.firestore.getDocumentRef('tokens/fin100321' + i).collection('users');
-            let memUsage = 0;
-            memUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-            console.log("before loop %.2f MB", (Math.round(memUsage * 100) / 100));
-            for (let j = 0; j < c_pp; j++) {
-                memUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-                console.log("In Loop before %.2f MB", (Math.round(memUsage * 100) / 100));
-                let xtsid = 'BD' + i + j + (2 * j);
-                var t_data = {
-                    token: 'bbcnndhhfd77dhhfjjsjd' + j,
-                    group: ['OptionTrader', 'ALGO'],
-                    symbols: { 10999: 10, 10666: 100 },
-                    stxid: xtsid,
-                    lastUpdate: Date.now()
-                };
-                memUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-                console.log("In Loop after %.2f MB", (Math.round(memUsage * 100) / 100));
-                pDocRef.doc(xtsid).set(t_data);
-            }
-            memUsage = process.memoryUsage().heapUsed / 1024 / 1024;
-            console.log("after loop %.2f MB", (Math.round(memUsage * 100) / 100));
-        }
-    }
     initApp() {
         return __awaiter(this, void 0, void 0, function* () {
             /*
@@ -124,7 +97,7 @@ class App {
                 o.ordertype = reqDetails.oType;
                 o.side = reqDetails.side;
                 o.qty = reqDetails.qty == 0 ? Number(c.symbols[reqDetails.sym]) : reqDetails.qty;
-                o.price = Number.parseFloat(reqDetails.price);
+                o.price = 'MARKET' == String(reqDetails.oType).toUpperCase() ? 0.0 : Number.parseFloat(reqDetails.price);
                 o.token = c.token;
                 this.stoxkart.normalOrder(o);
             }

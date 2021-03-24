@@ -14,7 +14,7 @@ export class db {
         }
         else{
             //init live
-            console.log("Initialising db 1 ",cert);
+            console.log("Initialising db 1 ");
             admin.initializeApp({
                 credential:admin.credential.cert(cert),
                 databaseURL:"https://autotrader-main .firebaseio.com"
