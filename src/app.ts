@@ -94,7 +94,7 @@ class App implements CallBack {
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
             if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
-                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid); //push to log stack *new feature yet to be created
             }
             else {
                 let o = new Order();
@@ -116,12 +116,6 @@ class App implements CallBack {
 
         });
         console.log("Finished order processing");
-    }
-
-    public placeOrder(c: Client) {
-        let o = new Order();
-
-        return 0;
     }
 
     public onSuccess(res: any) {

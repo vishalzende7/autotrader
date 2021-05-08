@@ -45,13 +45,16 @@ export class Stoxkart {
             },
             json:true
         };
+
+        if(config.env == 0){
+            console.log("Option Data ",option);
+        }
+
         if(config.apiCall == 0){
             console.log("Order is not placed, check config.ts->apiCall ",option);
             return;
         }
-        if(config.env == 0){
-            console.log("Option Data ",option);
-        }
+        
         let mInstance = this;
         request(option)
         .then(function success(res){
@@ -118,7 +121,6 @@ export class Stoxkart {
         .then(function success(res){
             mInstance._callback.onSuccess(res);
         }).catch(function error(e) {
-            
             mInstance._callback.onFailed(e);
         });
         return;

@@ -42,12 +42,12 @@ class Stoxkart {
             },
             json: true
         };
+        if (config_1.config.env == 0) {
+            console.log("Option Data ", option);
+        }
         if (config_1.config.apiCall == 0) {
             console.log("Order is not placed, check config.ts->apiCall ", option);
             return;
-        }
-        if (config_1.config.env == 0) {
-            console.log("Option Data ", option);
         }
         let mInstance = this;
         request(option)
