@@ -43,6 +43,9 @@ class App implements CallBack {
     }
 
     public ProcessOrderAlgo(reqDetails: any) {
+
+        //Not completed, review through code once
+
         if (this.client == null)
             return;
         if (reqDetails == null)
@@ -86,10 +89,9 @@ class App implements CallBack {
         if (reqDetails == null)
             return;
 
-        this.log("Processing Manual order! asynchronusly");
-
         const partner = reqDetails.partnerId;
-
+        this.log("Processing Manual order! asynchronusly for %s ",partner);
+        console.log(reqDetails);
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
         client_arr.forEach(element => {
             let c = this.client.getClientById(partner, element);
@@ -100,6 +102,7 @@ class App implements CallBack {
                 let o = new Order();
 
                 o.uid = c.stxid;
+                o.partner = partner as String;
 
                 o.exchange = reqDetails.exch;
                 o.sym = Number.parseInt(reqDetails.sym);
@@ -111,11 +114,18 @@ class App implements CallBack {
 
                 o.token = c.token;
 
-                this.stoxkart.normalOrder(o);
+                if(reqDetails.pType == 'BO'){
+                    o.target = Number.parseFloat(reqDetails.tgt);
+                    o.stopLoss = Number.parseFloat(reqDetails.sl);
+                    this.stoxkart.bracketOrder(o);
+                }   
+                else{
+                    this.stoxkart.normalOrder(o);
+                }
             }
 
         });
-        console.log("Finished order processing");
+        console.log("Finished order processing for %s ",partner);
     }
 
     public onSuccess(res: any) {

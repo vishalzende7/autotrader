@@ -38,7 +38,7 @@ class Stoxkart {
                 stopLossPrice: od.stopLoss,
                 trailingStoploss: 0,
                 squarOff: od.target,
-                orderUniqueIdentifier: "WEB"
+                orderUniqueIdentifier: String(od.partner + "_" + od.uid)
             },
             json: true
         };

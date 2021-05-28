@@ -41,7 +41,7 @@ export class Stoxkart {
                 stopLossPrice:od.stopLoss,
                 trailingStoploss:0,
                 squarOff:od.target,
-                orderUniqueIdentifier:"WEB"
+                orderUniqueIdentifier:String(od.partner+"_"+od.uid)
             },
             json:true
         };
@@ -144,7 +144,7 @@ export class Order{
     public uid:String;
     public token:String;
     public partner:String;
-
+    public orderId:String;
     public sym:Number;
     public qty:Number;
     public side:String;
