@@ -163,7 +163,7 @@ class Clients {
     }
     getClientsByGroup(partner, group) {
         if (this.clientdata.has(partner)) {
-            return this.clientdata.get(partner).group.get(group);
+            return this.clientdata.get(partner).group.get(group); //return array containing STXID or undefined, if no group exists
         }
         return [];
     }
@@ -176,10 +176,11 @@ class Clients {
 exports.Clients = Clients;
 Clients.max_partner = 4;
 Clients.max_client = 150;
+//list datastructure for all users of a perticular client (partner)
 class ClientHeap {
     constructor() {
         this.heap = new Map(); //actual client storage
-        this.group = new Map(); //clinet group wise id storage
+        this.group = new Map(); //client group wise id storage
     }
 }
 exports.ClientHeap = ClientHeap;

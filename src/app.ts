@@ -90,42 +90,50 @@ class App implements CallBack {
             return;
 
         const partner = reqDetails.partnerId;
-        this.log("Processing Manual order! asynchronusly for %s ",partner);
-        console.log(reqDetails);
-        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
-        client_arr.forEach(element => {
-            let c = this.client.getClientById(partner, element);
-            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
-                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid); //push to log stack *new feature yet to be created
-            }
-            else {
-                let o = new Order();
-
-                o.uid = c.stxid;
-                o.partner = partner as String;
-
-                o.exchange = reqDetails.exch;
-                o.sym = Number.parseInt(reqDetails.sym);
-                o.productType = reqDetails.pType
-                o.ordertype = reqDetails.oType;
-                o.side = reqDetails.side;
-                o.qty = reqDetails.qty == 0 ? Number(c.symbols[reqDetails.sym]) : reqDetails.qty;
-                o.price = 'MARKET' == String(reqDetails.oType).toUpperCase()? 0.0:Number.parseFloat(reqDetails.price);
-
-                o.token = c.token;
-
-                if(reqDetails.pType == 'BO'){
-                    o.target = Number.parseFloat(reqDetails.tgt);
-                    o.stopLoss = Number.parseFloat(reqDetails.sl);
-                    this.stoxkart.bracketOrder(o);
-                }   
-                else{
-                    this.stoxkart.normalOrder(o);
+        this.log("Processing Manual order! asynchronusly for %s ", partner);
+        this.log(reqDetails);
+        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId); //get client's STXID in array
+        if (client_arr != undefined) {
+            client_arr.forEach(element => {
+                let c = this.client.getClientById(partner, element); //element is client's STXID
+                if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
+                    console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid); //push to log stack *new feature yet to be created
                 }
-            }
+                else {
+                    let o = new Order();
 
-        });
-        console.log("Finished order processing for %s ",partner);
+                    o.group_id = reqDetails.groupId;
+                    o.uid = c.stxid;
+                    o.partner = partner as String;
+                    o.orderId = reqDetails.oid;
+
+                    o.exchange = reqDetails.exch;
+                    o.sym = Number.parseInt(reqDetails.sym);
+                    o.productType = reqDetails.pType
+                    o.ordertype = reqDetails.oType;
+                    o.side = reqDetails.side;
+                    o.qty = reqDetails.qty == 0 ? Number(c.symbols[reqDetails.sym]) : reqDetails.qty;
+                    o.price = 'MARKET' == String(reqDetails.oType).toUpperCase() ? 0.0 : Number.parseFloat(reqDetails.price);
+
+                    o.token = c.token;
+
+                    if (reqDetails.pType == 'BO') {
+                        o.target = Number.parseFloat(reqDetails.tgt);
+                        o.stopLoss = Number.parseFloat(reqDetails.stoploss);
+                        this.stoxkart.bracketOrder(o);
+                    }
+                    else {
+                        this.stoxkart.normalOrder(o);
+                    }
+                }
+
+            });
+            console.log("Finished order processing for %s ", partner);
+        }
+        else{
+            console.log("Group has no clients (%s) ", partner);
+        }
+
     }
 
     public onSuccess(res: any) {

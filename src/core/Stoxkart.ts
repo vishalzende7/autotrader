@@ -61,6 +61,7 @@ export class Stoxkart {
             let r = new Result();
             r.status = 200;
             r.type = 'SUCCESS';
+            r.order_data = od;
             r.resp = res;
             mInstance._callback.onSuccess(r);
         })
@@ -104,7 +105,7 @@ export class Stoxkart {
                 orderQuantity:od.qty,
                 limitPrice:od.price,
                 stopPrice:0,
-                orderUniqueIdentifier:"WEB"+od.uid
+                orderUniqueIdentifier:String(od.partner+"_"+od.uid)
             },
             json:true
         };
@@ -116,12 +117,24 @@ export class Stoxkart {
         if(config.env == 0){
             console.log("Option Data ",options);
         }
+
         let mInstance = this;
         request(options)
         .then(function success(res){
-            mInstance._callback.onSuccess(res);
+            let r = new Result();
+            r.status = 200;
+            r.type = 'SUCCESS';
+            r.order_data = od;
+            r.resp = res;
+            mInstance._callback.onSuccess(r);
+
         }).catch(function error(e) {
-            mInstance._callback.onFailed(e);
+            let r = new Result();
+            r.status = e.statusCode;
+            r.type = 'ERROR';
+            r.resp = e;
+            mInstance._callback.onFailed(r);
+
         });
         return;
     }
@@ -144,7 +157,7 @@ export class Order{
     public uid:String;
     public token:String;
     public partner:String;
-    public orderId:String;
+    public orderId:String; //my uinque id for sql database and manipulation (like cancel, squareoff)
     public sym:Number;
     public qty:Number;
     public side:String;
@@ -155,6 +168,7 @@ export class Order{
     public ordertype:String;
     public appOrderId:String;
     public productType:String;
+    public group_id:string;
 }
 
 export class Result {
@@ -162,6 +176,7 @@ export class Result {
     public status:Number;
     public type:String;
     public resp:String;
+    public order_data:any;
 
     public constructor(){}
 }

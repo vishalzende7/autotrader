@@ -184,7 +184,7 @@ export class Clients {
 
     public getClientsByGroup(partner: String, group: String): Array<String> {
         if (this.clientdata.has(partner)) {
-            return this.clientdata.get(partner).group.get(group);
+            return this.clientdata.get(partner).group.get(group); //return array containing STXID or undefined, if no group exists
         }
         return [];
     }
@@ -196,14 +196,16 @@ export class Clients {
     }
 
 }
+
+//list datastructure for all users of a perticular client (partner)
 export class ClientHeap {
     public lastUpdate: number;
-    public heap: Map<String, Client>;
-    public group: Map<String, Array<String>>;
+    public heap: Map<String, Client>; //actual clients storage map where String is STXID and client is client datastructure
+    public group: Map<String, Array<String>>; //<GroupName, Array of client's STXID>
 
     constructor() {
         this.heap = new Map(); //actual client storage
-        this.group = new Map(); //clinet group wise id storage
+        this.group = new Map(); //client group wise id storage
     }
 }
 export class Client {

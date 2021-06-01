@@ -55,6 +55,7 @@ class Stoxkart {
             let r = new Result();
             r.status = 200;
             r.type = 'SUCCESS';
+            r.order_data = od;
             r.resp = res;
             mInstance._callback.onSuccess(r);
         })
@@ -94,7 +95,7 @@ class Stoxkart {
                 orderQuantity: od.qty,
                 limitPrice: od.price,
                 stopPrice: 0,
-                orderUniqueIdentifier: "WEB" + od.uid
+                orderUniqueIdentifier: String(od.partner + "_" + od.uid)
             },
             json: true
         };
@@ -108,9 +109,18 @@ class Stoxkart {
         let mInstance = this;
         request(options)
             .then(function success(res) {
-            mInstance._callback.onSuccess(res);
+            let r = new Result();
+            r.status = 200;
+            r.type = 'SUCCESS';
+            r.order_data = od;
+            r.resp = res;
+            mInstance._callback.onSuccess(r);
         }).catch(function error(e) {
-            mInstance._callback.onFailed(e);
+            let r = new Result();
+            r.status = e.statusCode;
+            r.type = 'ERROR';
+            r.resp = e;
+            mInstance._callback.onFailed(r);
         });
         return;
     }

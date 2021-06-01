@@ -36,11 +36,13 @@ server.post('/processalgo', async function AlgoOrder(req,res){
 server.post('/processorder', async function ManualOrder(req,res){
     res.status(200);
     res.setHeader('content-type','application/json');
-    let msg = '{"response":"processing manual order"}';
     let reqData = req.body;
+    reqData.oid = String(reqData.partnerId+Date.now());
     console.log(req.body.partnerId);
     app.ProcessManualOrder(reqData);
-    res.send(msg);
+    let msg = {status:200,type:"placed",result:reqData.oid}
+    
+    res.send(JSON.stringify(msg));
 });
 
 
