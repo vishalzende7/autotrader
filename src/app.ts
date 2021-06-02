@@ -1,9 +1,9 @@
 
-import { Client, Clients } from './clients/client';
+import { Clients } from './clients/client';
 import { db } from './firestore/core';
-import { CallBack, Order, Stoxkart } from './core/Stoxkart';
+import { CallBack, Order, Result, Stoxkart } from './core/Stoxkart';
 import { config } from './config/config';
-
+import { Orders } from './Orders';
 
 
 class App implements CallBack {
@@ -11,14 +11,12 @@ class App implements CallBack {
     private count: number = 0;
     private client: Clients = null;
     private stoxkart: Stoxkart = null;
+    private orders: Orders = null;
+    
     constructor() {
         this.firestore = new db();
         this.stoxkart = new Stoxkart(this);
-    }
-
-
-    public install() {
-        //create direstore db structure
+        this.orders = new Orders(this.firestore.getCollectionReff('orders'));
     }
 
     public async initApp() {
@@ -64,7 +62,12 @@ class App implements CallBack {
             else {
                 let o = new Order();
 
+                o.group_id = reqDetails.groupId;
                 o.uid = c.stxid;
+                o.partner = partner as String;
+                o.orderId = reqDetails.oid;
+                o.source = "algo";
+
                 o.exchange = reqDetails.exch;
                 o.sym = Number.parseInt(reqDetails.sym);
                 o.ordertype = reqDetails.oType;
@@ -90,10 +93,14 @@ class App implements CallBack {
             return;
 
         const partner = reqDetails.partnerId;
+        
         this.log("Processing Manual order! asynchronusly for %s ", partner);
-        this.log(reqDetails);
+        this.log("Request data %s",JSON.stringify(reqDetails));
+       
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId); //get client's STXID in array
+       
         if (client_arr != undefined) {
+            
             client_arr.forEach(element => {
                 let c = this.client.getClientById(partner, element); //element is client's STXID
                 if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
@@ -106,6 +113,7 @@ class App implements CallBack {
                     o.uid = c.stxid;
                     o.partner = partner as String;
                     o.orderId = reqDetails.oid;
+                    o.source = "manual";
 
                     o.exchange = reqDetails.exch;
                     o.sym = Number.parseInt(reqDetails.sym);
@@ -116,7 +124,7 @@ class App implements CallBack {
                     o.price = 'MARKET' == String(reqDetails.oType).toUpperCase() ? 0.0 : Number.parseFloat(reqDetails.price);
 
                     o.token = c.token;
-
+                    
                     if (reqDetails.pType == 'BO') {
                         o.target = Number.parseFloat(reqDetails.tgt);
                         o.stopLoss = Number.parseFloat(reqDetails.stoploss);
@@ -126,25 +134,36 @@ class App implements CallBack {
                         this.stoxkart.normalOrder(o);
                     }
                 }
-
             });
             console.log("Finished order processing for %s ", partner);
         }
-        else{
-            console.log("Group has no clients (%s) ", partner);
+        else {
+            console.log("Group '%s' does not exists (%s) ", reqDetails.groupId, partner);
         }
 
     }
 
-    public onSuccess(res: any) {
-        this.log('On Success ', res);
+    public async onSuccess(res: any) {
+        let result: Result = res;
+        let resp = result.resp;
+
+        if (resp.type == 'success') {
+            let order_data: Order = result.order_data;
+            if(order_data.productType == "MIS")
+                order_data.appOrderId = resp.result.AppOrderID;
+            else
+                order_data.appOrderId = resp.result.OrderID;
+
+            this.orders.storeOrderData(order_data);
+        }
+        console.log('onSuccess ', JSON.stringify(res));
     }
 
     public onFailed(e: any) {
-        this.log('On error ', e);
+        console.log('On error %s', JSON.stringify(e));
     }
 
-    private log(msg?: any, ...args: any[]): void {
+    private log(msg?: any, ...args: any): void {
         if (config.env == 0) {
             console.log(msg, args);
         }

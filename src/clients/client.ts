@@ -18,13 +18,14 @@ export class Clients {
         let d = new Date();
         d.setHours(0, 0, 0, 0);
         this.today = d.getTime()/1000;
-        console.log(this.today);
+        console.log("date comparator ",this.today);
     }
 
     public async initClientAll() { //it should be called when server is started 
         try {
             let tmPartners = await this._ref.listDocuments(); //Retrive partners document list from database, consists reference to users collection
-            this.log("Init. of clients start for " + tmPartners.length + ' Partner/s');
+            if(config.env == 0)
+                console.log("Init. of clients start for %d Partner/s", tmPartners.length);
 
             for (var i = 0; i < tmPartners.length; i++) {
                 let uDocSnapshot = await tmPartners[i].collection('users')
@@ -33,7 +34,7 @@ export class Clients {
                     .get(); // get all usres from "token/partner/users"
 
                 if (uDocSnapshot.empty) {
-                    console.log('No latest document found for ' + tmPartners[i].id);
+                    console.log("No latest document found for %s ",tmPartners[i].id);
                     continue;
                 }
 
@@ -64,7 +65,8 @@ export class Clients {
                 });
                 this.clientdata.set(tmPartners[i].id, mcHeap);
             }
-            this.log(this.clientdata);
+            if(config.env == 0)
+                console.log("clients data init client", this.clientdata);
         }
         catch (err) {
             console.log("%s : error while initAll at client.ts:69 ", new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }), err);
@@ -104,7 +106,8 @@ export class Clients {
 
                 if (this.clientdata.get(partnerId).heap.has(uDoc.stxid)) {
                     //user is present
-                    console.log("Update received ", uDoc.stxid);
+                    if(config.env == 0)
+                        console.log("Update received %s", uDoc.stxid);
 
                     let mHeap = this.clientdata.get(partnerId);
                     let nClient = new Client();
@@ -119,10 +122,10 @@ export class Clients {
                     //Delete uer from Old Group
                     oClient.group.forEach(ele => {
                         if (!nClient.group.includes(ele)) {
-                            console.log('perform delete ', ele);
+                            this.log('perform delete ', ele);
                             let oldGrp = mHeap.group.get(ele);
                             oldGrp.splice(oldGrp.indexOf(oClient.stxid), 1);
-                            console.log(oldGrp);
+                            this.log("list of old groups %s",JSON.stringify(oldGrp));
                         }
                     });
 
@@ -166,7 +169,8 @@ export class Clients {
                     mcHeap.lastUpdate = uDoc.lastUpdate;
                 }
             });
-            this.log(this.clientdata);
+            
+            this.log("client data in refresh token ",this.clientdata);
             return this.total_client;
         }
         catch (err) {
@@ -189,9 +193,9 @@ export class Clients {
         return [];
     }
 
-    private log(args: any) {
+    private log(msg?:any,...args:any) {
         if (config.env == 0) {
-            console.log(args);
+            console.log(msg);
         }
     }
 

@@ -4,6 +4,7 @@ exports.Result = exports.Order = exports.Stoxkart = void 0;
 const request = require("request-promise");
 const config_1 = require("../config/config");
 class Stoxkart {
+    //static i:number = 1; //testing puspose uncomment when needed
     constructor(cb) {
         this.restApi = {
             "session": "/user/session",
@@ -43,10 +44,28 @@ class Stoxkart {
             json: true
         };
         if (config_1.config.env == 0) {
-            console.log("Option Data ", option);
+            console.log("Option Data %s", JSON.stringify(option));
         }
         if (config_1.config.apiCall == 0) {
             console.log("Order is not placed, check config.ts->apiCall ", option);
+            // Demonstrate success callback
+            // let r = new Result();
+            // let resp = {
+            //     type: 'success',
+            //     code: 's-orders-0001',
+            //     description: 'Request sent',
+            //     result: {
+            //         AppOrderID: Stoxkart.i,
+            //         OrderUniqueIdentifier: 'ID String',
+            //         ClientID: 'ID String'
+            //     }
+            // };
+            // Stoxkart.i++;
+            // r.status = 200;
+            // r.type = 'SUCCESS';
+            // r.order_data = od;
+            // r.resp = JSON.stringify(resp);
+            // this._callback.onSuccess(r);
             return;
         }
         let mInstance = this;
@@ -101,10 +120,28 @@ class Stoxkart {
         };
         if (config_1.config.apiCall == 0) {
             console.log("Order is not placed, check config.ts->apiCall ", options);
+            //Demonstrate success callback
+            // let r = new Result();
+            // let resp = {
+            //     type: 'success',
+            //     code: 's-orders-0001',
+            //     description: 'Request sent',
+            //     result: {
+            //         AppOrderID: Stoxkart.i,
+            //         OrderUniqueIdentifier: 'ID String',
+            //         ClientID: 'ID String'
+            //     }
+            // };
+            // Stoxkart.i++;
+            // r.status = 200;
+            // r.type = 'SUCCESS';
+            // r.order_data = od;
+            // r.resp = JSON.stringify(resp);
+            // this._callback.onSuccess(r);
             return;
         }
         if (config_1.config.env == 0) {
-            console.log("Option Data ", options);
+            console.log("Option Data %s ", JSON.stringify(options));
         }
         let mInstance = this;
         request(options)
@@ -115,6 +152,18 @@ class Stoxkart {
             r.order_data = od;
             r.resp = res;
             mInstance._callback.onSuccess(r);
+            /*
+            {
+                type: 'success',
+                code: 's-orders-0001',
+                description: 'Request sent',
+                result: {
+                    AppOrderID: 1100021129,
+                    OrderUniqueIdentifier: 'ID String',
+                    ClientID: 'ID String'
+                }
+            }
+            */
         }).catch(function error(e) {
             let r = new Result();
             r.status = e.statusCode;
