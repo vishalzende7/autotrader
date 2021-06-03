@@ -12,7 +12,7 @@ class App implements CallBack {
     private client: Clients = null;
     private stoxkart: Stoxkart = null;
     private orders: Orders = null;
-    
+
     constructor() {
         this.firestore = new db();
         this.stoxkart = new Stoxkart(this);
@@ -93,14 +93,14 @@ class App implements CallBack {
             return;
 
         const partner = reqDetails.partnerId;
-        
+
         this.log("Processing Manual order! asynchronusly for %s ", partner);
-        this.log("Request data %s",JSON.stringify(reqDetails));
-       
+        this.log("Request data %s", JSON.stringify(reqDetails));
+
         let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId); //get client's STXID in array
-       
+
         if (client_arr != undefined) {
-            
+
             client_arr.forEach(element => {
                 let c = this.client.getClientById(partner, element); //element is client's STXID
                 if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
@@ -124,7 +124,7 @@ class App implements CallBack {
                     o.price = 'MARKET' == String(reqDetails.oType).toUpperCase() ? 0.0 : Number.parseFloat(reqDetails.price);
 
                     o.token = c.token;
-                    
+
                     if (reqDetails.pType == 'BO') {
                         o.target = Number.parseFloat(reqDetails.tgt);
                         o.stopLoss = Number.parseFloat(reqDetails.stoploss);
@@ -143,13 +143,43 @@ class App implements CallBack {
 
     }
 
+    public async cancelBracketOrder(reqDetails: any) {
+        let partnerId = reqDetails.partner_id;
+        let orderId = reqDetails.order_id;
+        let data = await this.orders.getOrderData(orderId, partnerId);
+
+        if ('number' === typeof data) {
+            if (data === 500) {
+                return 500;
+            }
+            else {
+                return 404;
+            }
+        }
+        else {
+            if (data.orders != undefined) {
+                for(let i=0; i<data.orders.length; i++){
+                    let e = data.orders[i];
+                    let c = this.client.getClientById(partnerId, e.user_id);
+                    let o = new Order();
+                    o.appOrderId = e.appOrderId;
+                    o.token = c.token
+                    this.stoxkart.squareoffBracket(o);
+                }
+            }
+            this.orders.removeOrderData(orderId,partnerId);
+            
+            return 200;
+        }
+    }
+
     public async onSuccess(res: any) {
         let result: Result = res;
         let resp = result.resp;
 
         if (resp.type == 'success') {
             let order_data: Order = result.order_data;
-            if(order_data.productType == "MIS")
+            if (order_data.productType == "MIS")
                 order_data.appOrderId = resp.result.AppOrderID;
             else
                 order_data.appOrderId = resp.result.OrderID;

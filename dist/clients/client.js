@@ -172,7 +172,7 @@ class Clients {
     }
     log(msg, ...args) {
         if (config_1.config.env == 0) {
-            console.log(msg);
+            console.log(msg, args);
         }
     }
 }

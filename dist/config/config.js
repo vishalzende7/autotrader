@@ -7,5 +7,5 @@ exports.config = config;
 config.env = 0;
 config.gcDatabase = 1;
 config.gcProjectID = 'autotrader-main';
-config.apiCall = 1;
+config.apiCall = 0;
 //# sourceMappingURL=config.js.map

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Orders = void 0;
 const admin = require("firebase-admin");
+const config_1 = require("./config/config");
 class Orders {
     constructor(_ref) {
         this._ref = _ref;
@@ -26,6 +27,9 @@ class Orders {
                 side: o.side,
                 sym: o.sym,
                 source: o.source,
+                price: o.price == undefined ? 0.00 : o.price,
+                target: o.target == undefined ? 0.00 : o.target,
+                stoploss: o.stopLoss == undefined ? 0.00 : o.stopLoss,
                 orders: admin.firestore.FieldValue.arrayUnion({
                     appOrderId: o.appOrderId,
                     qty: o.qty,
@@ -36,6 +40,33 @@ class Orders {
             data1[o.orderId] = data;
             docRef.set(data1, { merge: true });
         });
+    }
+    getOrderData(orderId, partnerId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log("getOrderData start");
+            const docRef = this._ref.doc(partnerId);
+            const snapshot = yield docRef.get();
+            if (snapshot.exists) {
+                let data = snapshot.data();
+                if (data[orderId] != undefined) {
+                    console.log('getOrderData->%s (%s)', partnerId, JSON.stringify(data[orderId]));
+                    return data[orderId];
+                }
+                else
+                    return 404; // order id not found.
+            }
+            else {
+                return 500; //Bad request, Snapshot not found.
+            }
+        });
+    }
+    removeOrderData(orderId, partnerId) {
+        const docRef = this._ref.doc(partnerId);
+        docRef.update(orderId, admin.firestore.FieldValue.delete());
+    }
+    log(msg, ...args) {
+        if (config_1.config.env == 0)
+            console.log(msg, args);
     }
 }
 exports.Orders = Orders;

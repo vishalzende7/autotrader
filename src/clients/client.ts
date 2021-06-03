@@ -195,7 +195,7 @@ export class Clients {
 
     private log(msg?:any,...args:any) {
         if (config.env == 0) {
-            console.log(msg);
+            console.log(msg,args);
         }
     }
 

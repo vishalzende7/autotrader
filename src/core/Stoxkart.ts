@@ -15,7 +15,7 @@ export class Stoxkart {
     }
 
     private _callback: CallBack;
-    //static i:number = 1; //testing puspose uncomment when needed
+    static i:number = 1; //testing puspose uncomment when needed
     public constructor(cb: CallBack) {
         this._callback = cb;
     }
@@ -53,23 +53,23 @@ export class Stoxkart {
             console.log("Order is not placed, check config.ts->apiCall ", option);
 
             // Demonstrate success callback
-            // let r = new Result();
-            // let resp = {
-            //     type: 'success',
-            //     code: 's-orders-0001',
-            //     description: 'Request sent',
-            //     result: {
-            //         AppOrderID: Stoxkart.i,
-            //         OrderUniqueIdentifier: 'ID String',
-            //         ClientID: 'ID String'
-            //     }
-            // };
-            // Stoxkart.i++;
-            // r.status = 200;
-            // r.type = 'SUCCESS';
-            // r.order_data = od;
-            // r.resp = JSON.stringify(resp);
-            // this._callback.onSuccess(r);
+            let r = new Result();
+            let resp = {
+                type: 'success',
+                code: 's-orders-0001',
+                description: 'Request sent',
+                result: {
+                    OrderID: Stoxkart.i,
+                    OrderUniqueIdentifier: 'ID String',
+                    ClientID: 'ID String'
+                }
+            };
+            Stoxkart.i++;
+            r.status = 200;
+            r.type = 'SUCCESS';
+            r.order_data = od;
+            r.resp = resp;
+            this._callback.onSuccess(r);
 
             return;
         }
@@ -101,6 +101,14 @@ export class Stoxkart {
                 authorization: od.token
             }
         };
+        let mInstance = this;
+        request(options)
+            .then(function success(sResp:any) {
+                mInstance.log('Order cancel request %s',sResp);
+            })
+            .catch(function error(e:any) {
+                mInstance.log('Order cancel error %s',JSON.stringify(e));
+            })
 
     }
 
@@ -133,23 +141,23 @@ export class Stoxkart {
             console.log("Order is not placed, check config.ts->apiCall ", options);
 
             //Demonstrate success callback
-            // let r = new Result();
-            // let resp = {
-            //     type: 'success',
-            //     code: 's-orders-0001',
-            //     description: 'Request sent',
-            //     result: {
-            //         AppOrderID: Stoxkart.i,
-            //         OrderUniqueIdentifier: 'ID String',
-            //         ClientID: 'ID String'
-            //     }
-            // };
-            // Stoxkart.i++;
-            // r.status = 200;
-            // r.type = 'SUCCESS';
-            // r.order_data = od;
-            // r.resp = JSON.stringify(resp);
-            // this._callback.onSuccess(r);
+            let r = new Result();
+            let resp = {
+                type: 'success',
+                code: 's-orders-0001',
+                description: 'Request sent',
+                result: {
+                    AppOrderID: Stoxkart.i,
+                    OrderUniqueIdentifier: 'ID String',
+                    ClientID: 'ID String'
+                }
+            };
+            Stoxkart.i++;
+            r.status = 200;
+            r.type = 'SUCCESS';
+            r.order_data = od;
+            r.resp = resp;
+            this._callback.onSuccess(r);
 
             return;
         }

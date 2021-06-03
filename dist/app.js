@@ -126,6 +126,35 @@ class App {
             console.log("Group '%s' does not exists (%s) ", reqDetails.groupId, partner);
         }
     }
+    cancelBracketOrder(reqDetails) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let partnerId = reqDetails.partner_id;
+            let orderId = reqDetails.order_id;
+            let data = yield this.orders.getOrderData(orderId, partnerId);
+            if ('number' === typeof data) {
+                if (data === 500) {
+                    return 500;
+                }
+                else {
+                    return 404;
+                }
+            }
+            else {
+                if (data.orders != undefined) {
+                    for (let i = 0; i < data.orders.length; i++) {
+                        let e = data.orders[i];
+                        let c = this.client.getClientById(partnerId, e.user_id);
+                        let o = new Stoxkart_1.Order();
+                        o.appOrderId = e.appOrderId;
+                        o.token = c.token;
+                        this.stoxkart.squareoffBracket(o);
+                    }
+                }
+                this.orders.removeOrderData(orderId, partnerId);
+                return 200;
+            }
+        });
+    }
     onSuccess(res) {
         return __awaiter(this, void 0, void 0, function* () {
             let result = res;
