@@ -17,14 +17,14 @@ export class Clients {
         this.total_client = 0;
         let d = new Date();
         d.setHours(0, 0, 0, 0);
-        this.today = d.getTime()/1000;
-        console.log("date comparator ",this.today);
+        this.today = d.getTime() / 1000;
+        console.log("date comparator ", this.today);
     }
 
     public async initClientAll() { //it should be called when server is started 
         try {
             let tmPartners = await this._ref.listDocuments(); //Retrive partners document list from database, consists reference to users collection
-            if(config.env == 0)
+            if (config.env == 0)
                 console.log("Init. of clients start for %d Partner/s", tmPartners.length);
 
             for (var i = 0; i < tmPartners.length; i++) {
@@ -34,7 +34,7 @@ export class Clients {
                     .get(); // get all usres from "token/partner/users"
 
                 if (uDocSnapshot.empty) {
-                    console.log("No latest document found for %s ",tmPartners[i].id);
+                    console.log("No latest document found for %s ", tmPartners[i].id);
                     continue;
                 }
 
@@ -65,7 +65,7 @@ export class Clients {
                 });
                 this.clientdata.set(tmPartners[i].id, mcHeap);
             }
-            if(config.env == 0)
+            if (config.env == 0)
                 console.log("clients data init client", this.clientdata);
         }
         catch (err) {
@@ -106,7 +106,7 @@ export class Clients {
 
                 if (this.clientdata.get(partnerId).heap.has(uDoc.stxid)) {
                     //user is present
-                    if(config.env == 0)
+                    if (config.env == 0)
                         console.log("Update received %s", uDoc.stxid);
 
                     let mHeap = this.clientdata.get(partnerId);
@@ -125,7 +125,7 @@ export class Clients {
                             this.log('perform delete ', ele);
                             let oldGrp = mHeap.group.get(ele);
                             oldGrp.splice(oldGrp.indexOf(oClient.stxid), 1);
-                            this.log("list of old groups %s",JSON.stringify(oldGrp));
+                            this.log("list of old groups %s", JSON.stringify(oldGrp));
                         }
                     });
 
@@ -169,12 +169,12 @@ export class Clients {
                     mcHeap.lastUpdate = uDoc.lastUpdate;
                 }
             });
-            
-            this.log("client data in refresh token ",this.clientdata);
+
+            this.log("client data in refresh token ", this.clientdata);
             return this.total_client;
         }
         catch (err) {
-            console.log("%s: error while refreshtoken at client.ts:172 ",new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }), err);
+            console.log("%s: error while refreshtoken at client.ts:172 ", new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }), err);
             return 0;
         }
     }
@@ -193,9 +193,9 @@ export class Clients {
         return [];
     }
 
-    private log(msg?:any,...args:any) {
+    private log(msg?: any, ...args: any) {
         if (config.env == 0) {
-            console.log(msg,args);
+            console.log(msg, args);
         }
     }
 

@@ -16,41 +16,57 @@ class Orders {
     constructor(_ref) {
         this._ref = _ref;
     }
-    storeOrderData(o) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let docRef = this._ref.doc(o.partner); //document path is 'orders/document PARTNERID '
-            let data = {
-                exchange: o.exchange,
-                group_id: o.group_id,
-                order_type: o.ordertype,
-                product_type: o.productType,
-                side: o.side,
-                sym: o.sym,
-                source: o.source,
-                price: o.price == undefined ? 0.00 : o.price,
-                target: o.target == undefined ? 0.00 : o.target,
-                stoploss: o.stopLoss == undefined ? 0.00 : o.stopLoss,
-                orders: admin.firestore.FieldValue.arrayUnion({
-                    appOrderId: o.appOrderId,
-                    qty: o.qty,
-                    user_id: o.uid
-                })
-            };
+    storeOrderData(o, algo) {
+        let docRef = null;
+        if (algo != undefined && algo == true) {
+            docRef = this._ref.doc(o.partner).collection('algo').doc(o.orderId);
+        }
+        else
+            docRef = this._ref.doc(o.partner); //document path is 'orders/document PARTNERID '
+        let data = {
+            exchange: o.exchange,
+            group_id: o.group_id,
+            order_type: o.ordertype,
+            product_type: o.productType,
+            side: o.side,
+            sym: o.sym,
+            source: o.source,
+            price: o.price == undefined ? 0.00 : o.price,
+            target: o.target == undefined ? 0.00 : o.target,
+            stoploss: o.stopLoss == undefined ? 0.00 : o.stopLoss,
+            orders: admin.firestore.FieldValue.arrayUnion({
+                appOrderId: o.appOrderId,
+                qty: o.qty,
+                user_id: o.uid
+            })
+        };
+        if (o.source == 'algo') {
+            docRef.set(data, { merge: true });
+        }
+        else {
             var data1 = {};
             data1[o.orderId] = data;
             docRef.set(data1, { merge: true });
-        });
+        }
     }
-    getOrderData(orderId, partnerId) {
+    getOrderData(orderId, partnerId, algo) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log("getOrderData start");
-            const docRef = this._ref.doc(partnerId);
+            let docRef = null;
+            if (algo != undefined && algo == true)
+                docRef = this._ref.doc(partnerId).collection('algo').doc(orderId);
+            else
+                docRef = this._ref.doc(partnerId);
             const snapshot = yield docRef.get();
             if (snapshot.exists) {
                 let data = snapshot.data();
-                if (data[orderId] != undefined) {
+                if (data[orderId] != undefined && !algo) {
                     console.log('getOrderData->%s (%s)', partnerId, JSON.stringify(data[orderId]));
                     return data[orderId];
+                }
+                else if (algo) {
+                    console.log('getOrderData->%s (%s)', partnerId, JSON.stringify(data));
+                    return data;
                 }
                 else
                     return 404; // order id not found.

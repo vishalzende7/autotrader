@@ -15,7 +15,7 @@ export class Stoxkart {
     }
 
     private _callback: CallBack;
-    static i:number = 1; //testing puspose uncomment when needed
+    static i: number = 1; //testing puspose uncomment when needed
     public constructor(cb: CallBack) {
         this._callback = cb;
     }
@@ -69,6 +69,7 @@ export class Stoxkart {
             r.type = 'SUCCESS';
             r.order_data = od;
             r.resp = resp;
+            for (let i = 0; i < 1000; i++);
             this._callback.onSuccess(r);
 
             return;
@@ -103,11 +104,11 @@ export class Stoxkart {
         };
         let mInstance = this;
         request(options)
-            .then(function success(sResp:any) {
-                mInstance.log('Order cancel request %s',sResp);
+            .then(function success(sResp: any) {
+                mInstance.log('Order cancel request %s', sResp);
             })
-            .catch(function error(e:any) {
-                mInstance.log('Order cancel error %s',JSON.stringify(e));
+            .catch(function error(e: any) {
+                mInstance.log('Order cancel error %s', JSON.stringify(e));
             })
 
     }
@@ -230,7 +231,7 @@ export class Order {
     public productType: String;
     public group_id: string;
     public source: string;
-    public isLast:boolean;
+    public isLast: boolean;
 }
 
 export class Result {

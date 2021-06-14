@@ -64,6 +64,8 @@ class Stoxkart {
             r.type = 'SUCCESS';
             r.order_data = od;
             r.resp = resp;
+            for (let i = 0; i < 1000; i++)
+                ;
             this._callback.onSuccess(r);
             return;
         }

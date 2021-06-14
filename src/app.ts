@@ -4,6 +4,7 @@ import { db } from './firestore/core';
 import { CallBack, Order, Result, Stoxkart } from './core/Stoxkart';
 import { config } from './config/config';
 import { Orders } from './Orders';
+import md5 = require('md5');
 
 
 class App implements CallBack {
@@ -40,50 +41,104 @@ class App implements CallBack {
         return await this.client.refeshToken(partnerId);
     }
 
-    public ProcessOrderAlgo(reqDetails: any) {
+    public async ProcessOrderAlgo(reqDetails: any) {
 
-        //Not completed, review through code once
+        //completed, perform testing...
 
         if (this.client == null)
-            return;
+            return 1;
         if (reqDetails == null)
-            return;
+            return 2;
 
-        this.log("Processing algo order! asynchronusly");
+        let order_id = reqDetails.OrderID;
+        let msg = reqDetails.groupID + reqDetails.partnerID + reqDetails.sym as string;
+        let hash = md5(msg);
+        if (hash == order_id) {
+            this.log("Processing order for %s", reqDetails.partnerID);
 
-        const partner = reqDetails.partnerId;
+            try {
+                //Case 1: PL and BO
+                if ("PL" == (reqDetails.type as string).toUpperCase() && "BO" == (reqDetails.pt as string).toUpperCase()) {
+                    return 200;
+                }
+                //Case 2: Squareoff and BO
+                if ("SQUAREOFF" == (reqDetails.sqr as string).toUpperCase() && "BO" == (reqDetails.pt as string).toUpperCase()) {
+                    //In case of MIS or NRML do nothing here
+                    let partnerId = reqDetails.partnerID;
+                    let orderId = order_id;
+                    let data = await this.orders.getOrderData(orderId, partnerId, true);
+                    if ('number' === typeof data) {
+                        if (data === 500) {
+                            return 500;
+                        }
+                        else {
+                            return 404;
+                        }
+                    }
+                    else {
+                        if (data.orders != undefined && data.product_type == "BO") {
+                            for (let i = 0; i < data.orders.length; i++) {
+                                let e = data.orders[i];
+                                let c = this.client.getClientById(partnerId, e.user_id);
+                                let o = new Order();
+                                o.appOrderId = e.appOrderId;
+                                o.token = c.token
 
-        let client_arr = this.client.getClientsByGroup(partner, reqDetails.groupId);
-        client_arr.forEach(element => {
-            let c = this.client.getClientById(partner, element);
-            if (reqDetails.qty == 0 && c.symbols[reqDetails.sym] == undefined) {
-                console.log("qty is not defined for %d for client %s", reqDetails.sym, c.stxid);
+                                //Stoxkart BO squareoff
+                                this.stoxkart.squareoffBracket(o);
+                            }
+                            return 200;
+                        }
+                        else {
+                            return 500
+                        }
+                    }
+                }
+
+                let client_arr = this.client.getClientsByGroup(reqDetails.partnerID as String, reqDetails.groupID as String);
+                for (let i = 0; i < client_arr.length; i++) {
+                    let client = this.client.getClientById(reqDetails.partnerID, client_arr[i]);
+                    if (reqDetails.qty == 0 && client.symbols[reqDetails.sym] == undefined) {
+                        console.log("Quantity is not defined for %d for client %s", reqDetails.sym, client.stxid);
+                        continue;
+                    }
+                    let o = new Order();
+                    o.group_id = reqDetails.groupID;
+                    o.uid = client.stxid;
+                    o.partner = reqDetails.partnerID as String;
+                    o.orderId = order_id;
+                    o.source = "algo";
+
+                    o.exchange = reqDetails.exch;
+                    o.sym = reqDetails.sym;
+                    o.productType = reqDetails.pt; //MIS, BO, NRML
+                    o.ordertype = reqDetails.ot; //LIMIT, MARKET
+                    o.side = (reqDetails.action as string).toUpperCase();
+                    o.qty = reqDetails.qty == 0 ? Number(client.symbols[reqDetails.sym]) : reqDetails.qty;
+                    o.price = "LIMIT" == (reqDetails.ot as string).toUpperCase() ? 0.0 : Number.parseFloat(reqDetails.price);
+
+                    o.token = client.token;
+                    if (reqDetails.pt == "BO") {
+                        o.target = Number.parseFloat(reqDetails.tgt);
+                        o.stopLoss = Number.parseFloat(reqDetails.sl);
+                        this.stoxkart.bracketOrder(o);
+                    }
+                    else {
+                        this.stoxkart.normalOrder(o);
+                    }
+                }
+                return 200;
+
             }
-            else {
-                let o = new Order();
-
-                o.group_id = reqDetails.groupId;
-                o.uid = c.stxid;
-                o.partner = partner as String;
-                o.orderId = reqDetails.oid;
-                o.source = "algo";
-
-                o.exchange = reqDetails.exch;
-                o.sym = Number.parseInt(reqDetails.sym);
-                o.ordertype = reqDetails.oType;
-                o.side = reqDetails.side;
-                o.qty = Number(c.symbols[reqDetails.sym]);
-                o.price = Number.parseFloat(reqDetails.price);
-                o.stopLoss = Number.parseFloat(reqDetails.sl);
-                o.target = Number.parseFloat(reqDetails.tgt);
-
-                o.token = c.token;
-
-                this.stoxkart.bracketOrder(o);
+            catch (e) {
+                console.log("error generated at app.ts:63 (process algo order): %s", JSON.stringify(e));
+                return 500;
             }
-
-        });
-
+        }
+        else {
+            console.log("Order data does not match...error!...create new algo!");
+            return 502;
+        }
     }
 
     public ProcessManualOrder(reqDetails: any) {
@@ -158,7 +213,7 @@ class App implements CallBack {
         }
         else {
             if (data.orders != undefined) {
-                for(let i=0; i<data.orders.length; i++){
+                for (let i = 0; i < data.orders.length; i++) {
                     let e = data.orders[i];
                     let c = this.client.getClientById(partnerId, e.user_id);
                     let o = new Order();
@@ -167,8 +222,8 @@ class App implements CallBack {
                     this.stoxkart.squareoffBracket(o);
                 }
             }
-            this.orders.removeOrderData(orderId,partnerId);
-            
+            this.orders.removeOrderData(orderId, partnerId);
+
             return 200;
         }
     }
@@ -179,12 +234,15 @@ class App implements CallBack {
 
         if (resp.type == 'success') {
             let order_data: Order = result.order_data;
-            if (order_data.productType == "MIS")
-                order_data.appOrderId = resp.result.AppOrderID;
-            else
+            if (order_data.productType == "BO")
                 order_data.appOrderId = resp.result.OrderID;
+            else
+                order_data.appOrderId = resp.result.AppOrderID;
 
-            this.orders.storeOrderData(order_data);
+            if (order_data.source == 'algo')
+                this.orders.storeOrderData(order_data, true);
+            else
+                this.orders.storeOrderData(order_data);
         }
         console.log('onSuccess ', JSON.stringify(res));
     }
