@@ -32,6 +32,7 @@ class Stoxkart {
                 exchangeInstrumentID: od.sym,
                 orderType: od.ordertype,
                 orderSide: od.side,
+                disclosedQuantity: od.qty,
                 orderQuantity: od.qty,
                 limitPrice: od.price,
                 stopLossPrice: od.stopLoss,
@@ -41,8 +42,6 @@ class Stoxkart {
             },
             json: true
         };
-        if (od.exchange == "NSECM")
-            option.body["disclosedQuantity"] = od.qty;
         if (config_1.config.env == 0) {
             console.log("Option Data %s", JSON.stringify(option));
         }
@@ -119,6 +118,7 @@ class Stoxkart {
                 productType: od.productType,
                 orderType: od.ordertype,
                 orderSide: od.side,
+                disclosedQuantity: od.qty,
                 timeInForce: "DAY",
                 orderQuantity: od.qty,
                 limitPrice: od.price,
@@ -127,8 +127,6 @@ class Stoxkart {
             },
             json: true
         };
-        if (od.exchange == "NSECM")
-            options.body["disclosedQuantity"] = od.qty;
         if (config_1.config.apiCall == 0) {
             console.log("Order is not placed, check config.ts->apiCall ", options);
             //Demonstrate success callback
